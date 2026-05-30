@@ -1,4 +1,4 @@
-name: Build and Sign Android Release
+name: Build and Sign Android APK
 
 on:
   push:
@@ -15,19 +15,24 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Decode Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
 
-      - name: Build App Bundle
+      - name: Build Split APKs (Maximum Compression)
         run: |
-          flutter build appbundle --release \
+          flutter build apk --release --split-per-abi \
             --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
@@ -36,8 +41,20 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
             
-      - name: Upload Bundle Artifact
+      - name: Upload ARM64 APK (For Modern Phones & Your ZTE)
         uses: actions/upload-artifact@v4
         with:
-          name: supanotes-release-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+          name: supanotes-arm64-v8a
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+
+      - name: Upload ARM32 APK (For Older Phones)
+        uses: actions/upload-artifact@v4
+        with:
+          name: supanotes-armeabi-v7a
+          path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+
+      - name: Upload x86_64 APK (For Emulators)
+        uses: actions/upload-artifact@v4
+        with:
+          name: supanotes-x86_64
+          path: build/app/outputs/flutter-apk/app-x86_64-release.apk
