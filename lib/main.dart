@@ -35,8 +35,8 @@ void main() async {
 
   // 4. Initialize Backend
   await Supabase.initialize(
-    url: 'https://hcxvsygvihhdkkyynqzw.supabase.co',
-    anonKey: 'sb_publishable_HXToY2v1RGZvBmv99g4xPA_P5JI6Ium',
+    url: const String.fromEnvironment('SUPABASE_URL'),
+    anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
   );
 
   AppLog.info('Supabase initialized successfully.', tag: 'SYSTEM');

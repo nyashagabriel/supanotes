@@ -1,4 +1,4 @@
-package com.example.supanotes
+package com.greywayco.supanotes
 
 import io.flutter.embedding.android.FlutterActivity
 

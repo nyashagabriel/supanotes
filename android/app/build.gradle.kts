@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.supanotes"
+    namespace = "com.greywayco.supanotes"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,20 +21,22 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.supanotes"
+        applicationId = "com.greywayco.supanotes"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resConfigs "en" // Add only your languages here
     }
 
-    buildTypes {
+buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig signingConfigs.debug // Change to your release config
+            minifyEnabled true       // MANDATORY: Enables R8 code shrinking
+            shrinkResources true      // MANDATORY: Enables unused asset removal
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
