@@ -1,4 +1,4 @@
-name: Shrink and Build Android Bundle
+name: Build and Sign Android Release
 
 on:
   push:
@@ -21,15 +21,23 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+
       - name: Build App Bundle
         run: |
           flutter build appbundle --release \
             --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
             
-      - name: Upload Bundle
+      - name: Upload Bundle Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-bundle
+          name: supanotes-release-bundle
           path: build/app/outputs/bundle/release/app-release.aab
